@@ -16,7 +16,7 @@ pub trait Solution {
 }
 
 /// Retrieve the real input for the given day.
-/// 
+///
 /// Requires a run-time environment variable named `AOC_SESSION_COOKIE`.
 /// If this variable is not set, the function will fail.
 pub fn get_input(day: u8) -> Result<String> {
@@ -50,7 +50,7 @@ pub fn run_solution<S: Solution>() -> Result<()> {
 }
 
 /// Test the solution, given specific input and the expected answers.
-/// 
+///
 /// Will panic on error or incorrect output.
 pub fn test_solution<S, I, A1, A2>(input: I, (answer1, answer2): (A1, A2))
 where
