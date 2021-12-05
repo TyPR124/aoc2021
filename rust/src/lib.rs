@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display};
+use std::{fmt::{Debug, Display}, time::Instant};
 
 use anyhow::{Context, Result};
 
@@ -41,10 +41,17 @@ pub fn get_input(day: u8) -> Result<String> {
 pub fn run_solution<S: Solution>() -> Result<()> {
     let input = get_input(S::DAY)
         .with_context(|| format!("failed to retrieve input for day {:02}", S::DAY))?;
+
+    let time = Instant::now();
+
     let (part1, part2) = S::solve(input)?;
+
+    let time = time.elapsed();
 
     println!("Day {:02} - Part 1: {}", S::DAY, part1);
     println!("Day {:02} - Part 2: {}", S::DAY, part2);
+    println!("Run took {:.5}s | {}ms | {}μs ({})", time.as_secs_f32(), time.as_millis(), time.as_micros(), if cfg!(debug_assertions) { "DEBUG" } else { "RELEASE" });
+    
 
     Ok(())
 }
