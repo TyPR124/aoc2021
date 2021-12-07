@@ -25,7 +25,7 @@ impl aoc2021::Solution for Day1 {
     type Out1 = usize;
     type Out2 = usize;
 
-    fn solve(input: String) -> Result<(usize, usize)> {
+    fn solve(input: String) -> Result<(Self::Out1, Self::Out2)> {
         let mut input = input
             .lines()
             .map(|line| line.parse::<i64>().context("failed to parse number"));

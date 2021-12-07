@@ -1,4 +1,7 @@
-use std::{fmt::{Debug, Display}, time::Instant};
+use std::{
+    fmt::{Debug, Display},
+    time::Instant,
+};
 
 use anyhow::{Context, Result};
 
@@ -50,8 +53,17 @@ pub fn run_solution<S: Solution>() -> Result<()> {
 
     println!("Day {:02} - Part 1: {}", S::DAY, part1);
     println!("Day {:02} - Part 2: {}", S::DAY, part2);
-    println!("Run took {:.5}s | {}ms | {}μs ({})", time.as_secs_f32(), time.as_millis(), time.as_micros(), if cfg!(debug_assertions) { "DEBUG" } else { "RELEASE" });
-    
+    println!(
+        "Run took {:.5}s | {}ms | {}μs ({})",
+        time.as_secs_f32(),
+        time.as_millis(),
+        time.as_micros(),
+        if cfg!(debug_assertions) {
+            "DEBUG"
+        } else {
+            "RELEASE"
+        }
+    );
 
     Ok(())
 }
