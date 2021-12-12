@@ -1,8 +1,8 @@
 use std::{
-    slice,
     fmt::{Debug, Display},
     iter::{self, FusedIterator},
     ops::{Index, IndexMut},
+    slice,
     time::Instant,
 };
 
@@ -119,7 +119,7 @@ impl<T> Grid<T> {
     pub fn new(data: Vec<T>, size: GridSize) -> Result<Self> {
         ensure!(
             data.len() == size.to_len(),
-            "data length does not match dimentions in grid construction"
+            "data length does not match dimensions in grid construction"
         );
         Ok(Self { data, size })
     }
@@ -139,7 +139,8 @@ impl<T> Grid<T> {
         self.data.iter_mut()
     }
     pub fn iter_copied(&self) -> iter::Copied<slice::Iter<T>>
-    where T: Copy
+    where
+        T: Copy,
     {
         self.data.iter().copied()
     }
@@ -168,7 +169,9 @@ impl GridIndex {
     pub fn with_index(self, index: usize) -> Self {
         Self { index, ..self }
     }
-    pub fn to_usize(self) -> usize { self.index }
+    pub fn to_usize(self) -> usize {
+        self.index
+    }
     pub fn x(self) -> usize {
         self.index % self.size.width
     }
@@ -196,7 +199,8 @@ impl GridIndex {
             (matches!(kind, All | Ordinal | Backward) && left && top)
                 .then(|| self.with_index(index - width - 1)),
             // Top Center
-            (matches!(kind, All | Cardinal | Backward) && top).then(|| self.with_index(index - width)),
+            (matches!(kind, All | Cardinal | Backward) && top)
+                .then(|| self.with_index(index - width)),
             // Top Right
             (matches!(kind, All | Ordinal | Backward) && top && right)
                 .then(|| self.with_index(index - width + 1)),
@@ -208,7 +212,8 @@ impl GridIndex {
             (matches!(kind, All | Ordinal | Forward) && left && bottom)
                 .then(|| self.with_index(index + width - 1)),
             // Bottom Center
-            (matches!(kind, All | Cardinal | Forward) && bottom).then(|| self.with_index(index + width)),
+            (matches!(kind, All | Cardinal | Forward) && bottom)
+                .then(|| self.with_index(index + width)),
             // Bottom Right
             (matches!(kind, All | Ordinal | Forward) && right && bottom)
                 .then(|| self.with_index(index + width + 1)),
