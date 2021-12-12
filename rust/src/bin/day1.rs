@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 
 #[test]
-fn test_day1() {
+fn test_example() {
     const INPUT: &str = r#"199
 200
 208

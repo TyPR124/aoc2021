@@ -1,7 +1,7 @@
 use anyhow::{bail, Context, Result};
 
 #[test]
-fn test_day2() {
+fn test_example() {
     const INPUT: &str = r#"forward 5
 down 5
 forward 8

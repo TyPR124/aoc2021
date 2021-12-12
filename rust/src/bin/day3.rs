@@ -5,7 +5,7 @@ use std::iter;
 use anyhow::{Context, Result};
 
 #[test]
-fn test_day3() {
+fn test_example() {
     const INPUT: &str = r#"00100
 11110
 10110

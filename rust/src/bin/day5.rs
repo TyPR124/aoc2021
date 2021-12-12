@@ -3,7 +3,7 @@ use std::{cmp::Ordering, collections::HashMap};
 use anyhow::{Context, Result};
 
 #[test]
-fn test_day5() {
+fn test_example() {
     const INPUT: &str = r#"0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4

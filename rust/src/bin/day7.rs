@@ -3,7 +3,7 @@
 use anyhow::{Context, Result};
 
 #[test]
-fn test_day7() {
+fn test_example() {
     const INPUT: &str = r#"16,1,2,0,4,2,7,1,2,14"#;
     aoc2021::test_solution::<Day7, _, _, _>(INPUT, (37, 168));
 }
