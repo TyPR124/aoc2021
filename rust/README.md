@@ -16,8 +16,8 @@ The binary for each day will automatically download the day's input using your a
 
 To run the solution for day 1, issue the command `cargo run --bin day1`.
 
-To test the solution for day 1, issue the command `cargo test day1`.
+To test the solution for day 1, issue the command `cargo test --bin day1`.
 
 To test all solutions, issue the command `cargo test`.
 
-Note that while the code is written for performance, by default cargo does not optimize the compiled binary. To enable optimization, include the `--release` flag, for example `cargo run --bin day1 --release`. Building a relase mode binary can take significantly more time than an unoptimized binary.
+Note that while the code usually tries to be performant, by default cargo does not optimize the compiled binary. To enable optimization, include the `--release` flag, for example `cargo run --bin day1 --release`. Building a relase mode binary can take significantly more time than an unoptimized binary.
