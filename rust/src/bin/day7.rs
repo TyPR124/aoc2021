@@ -19,23 +19,6 @@ impl aoc2021::Solution for Day7 {
     type Out2 = u32;
 
     fn solve(input: String) -> Result<(Self::Out1, Self::Out2)> {
-        let best_fuel = |min, max, positions: &[u32], fuel_cost: fn(u32, u32) -> u32| {
-            (min..=max)
-                .map(|p| positions.iter().map(|&n| fuel_cost(n, p)).sum())
-                .try_fold(
-                    u32::MAX,
-                    |best, new| {
-                        if new <= best {
-                            Ok(new)
-                        } else {
-                            Err(best)
-                        }
-                    },
-                )
-                .unwrap_or_else(|best| best)
-        };
-        let p1_fuel_cost = u32::abs_diff;
-        let p2_fuel_cost = |a: u32, b: u32| a.abs_diff(b) * (a.abs_diff(b) + 1) / 2;
         let mut min = u32::MAX;
         let mut max = 0;
         let positions: Vec<u32> = input
@@ -51,8 +34,24 @@ impl aoc2021::Solution for Day7 {
             })?;
         let (min, max) = (min, max);
 
-        let part1 = best_fuel(min, max, &positions, p1_fuel_cost);
-        let part2 = best_fuel(min, max, &positions, p2_fuel_cost);
+        let best_fuel = |cost_fn: fn(u32, u32) -> u32| {
+            (min..=max)
+                .map(|p| positions.iter().map(|&n| cost_fn(n, p)).sum())
+                .try_fold(
+                    u32::MAX,
+                    |best, new| {
+                        if new <= best {
+                            Ok(new)
+                        } else {
+                            Err(best)
+                        }
+                    },
+                )
+                .unwrap_or_else(|best| best)
+        };
+        let p2_fuel_cost = |a: u32, b: u32| a.abs_diff(b) * (a.abs_diff(b) + 1) / 2;
+        let part1 = best_fuel(u32::abs_diff);
+        let part2 = best_fuel(p2_fuel_cost);
         Ok((part1, part2))
     }
 }
