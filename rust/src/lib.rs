@@ -1,9 +1,12 @@
 use std::{
+    slice,
     fmt::{Debug, Display},
+    iter::{self, FusedIterator},
+    ops::{Index, IndexMut},
     time::Instant,
 };
 
-use anyhow::{Context, Result};
+use anyhow::{ensure, Context, Result};
 
 /// Common functionality for a day's solution.
 pub trait Solution {
@@ -92,4 +95,154 @@ where
     let (part1, part2) = result.unwrap();
     assert_eq!(part1, answer1, "Part 1 failure");
     assert_eq!(part2, answer2, "Part 2 failure");
+}
+
+#[derive(Clone, Debug)]
+pub struct Grid<T> {
+    data: Vec<T>,
+    size: GridSize,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct GridSize {
+    pub width: usize,
+    pub height: usize,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct GridIndex {
+    pub index: usize,
+    pub size: GridSize,
+}
+
+impl<T> Grid<T> {
+    pub fn new(data: Vec<T>, size: GridSize) -> Result<Self> {
+        ensure!(
+            data.len() == size.to_len(),
+            "data length does not match dimentions in grid construction"
+        );
+        Ok(Self { data, size })
+    }
+    pub fn size(&self) -> GridSize {
+        self.size
+    }
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+    pub fn iter(&self) -> slice::Iter<T> {
+        self.data.iter()
+    }
+    pub fn iter_mut(&mut self) -> slice::IterMut<T> {
+        self.data.iter_mut()
+    }
+    pub fn iter_copied(&self) -> iter::Copied<slice::Iter<T>>
+    where T: Copy
+    {
+        self.data.iter().copied()
+    }
+}
+
+impl<T, I: Into<usize>> Index<I> for Grid<T> {
+    type Output = T;
+    fn index(&self, index: I) -> &Self::Output {
+        self.data.index(index.into())
+    }
+}
+
+impl<T, I: Into<usize>> IndexMut<I> for Grid<T> {
+    fn index_mut(&mut self, index: I) -> &mut Self::Output {
+        self.data.index_mut(index.into())
+    }
+}
+
+impl GridSize {
+    pub fn to_len(self) -> usize {
+        self.width * self.height
+    }
+}
+
+impl GridIndex {
+    pub fn with_index(self, index: usize) -> Self {
+        Self { index, ..self }
+    }
+    pub fn to_usize(self) -> usize { self.index }
+    pub fn x(self) -> usize {
+        self.index % self.size.width
+    }
+    pub fn y(self) -> usize {
+        self.index / self.size.width
+    }
+    pub fn row(self) -> usize {
+        self.y()
+    }
+    pub fn col(self) -> usize {
+        self.x()
+    }
+    pub fn neighbors(self, kind: Neighbors) -> [Option<Self>; 8] {
+        use Neighbors::*;
+        let Self { index, size } = self;
+        let GridSize { width, height } = size;
+        let (x, y) = (self.x(), self.y());
+        let left = x > 0;
+        let right = x + 1 < width;
+        let top = y > 0;
+        let bottom = y + 1 < height;
+
+        [
+            // Top Left
+            (matches!(kind, All | Ordinal | Backward) && left && top)
+                .then(|| self.with_index(index - width - 1)),
+            // Top Center
+            (matches!(kind, All | Cardinal | Backward) && top).then(|| self.with_index(index - width)),
+            // Top Right
+            (matches!(kind, All | Ordinal | Backward) && top && right)
+                .then(|| self.with_index(index - width + 1)),
+            // Left Center
+            (matches!(kind, All | Cardinal | Backward) && left).then(|| self.with_index(index - 1)),
+            // Right Center
+            (matches!(kind, All | Cardinal | Forward) && right).then(|| self.with_index(index + 1)),
+            // Bottom Left
+            (matches!(kind, All | Ordinal | Forward) && left && bottom)
+                .then(|| self.with_index(index + width - 1)),
+            // Bottom Center
+            (matches!(kind, All | Cardinal | Forward) && bottom).then(|| self.with_index(index + width)),
+            // Bottom Right
+            (matches!(kind, All | Ordinal | Forward) && right && bottom)
+                .then(|| self.with_index(index + width + 1)),
+        ]
+    }
+
+    pub fn neighbors_iter(
+        self,
+        kind: Neighbors,
+    ) -> impl Iterator<Item = Self> + DoubleEndedIterator + FusedIterator + Clone + Debug {
+        self.neighbors(kind).into_iter().flatten()
+    }
+}
+
+pub enum Neighbors {
+    Cardinal,
+    Ordinal,
+    Forward,
+    Backward,
+    All,
+}
+
+impl From<GridIndex> for usize {
+    fn from(i: GridIndex) -> Self {
+        i.index
+    }
+}
+
+pub trait Ascii {
+    fn to_digit(self) -> Option<u8>;
+}
+
+impl Ascii for u8 {
+    fn to_digit(self) -> Option<u8> {
+        (b'0'..=b'9').contains(&self).then(|| self - b'0')
+    }
 }
