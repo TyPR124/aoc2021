@@ -48,8 +48,6 @@ impl aoc2021::Solution for Day11 {
             energy_levels[level as usize].insert(i);
         });
 
-        // let mut increments = vec![0; input.len()];
-
         let mut part1 = 0;
         let mut part2 = None;
 
