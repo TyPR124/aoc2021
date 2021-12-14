@@ -1,4 +1,5 @@
 use std::{
+    cmp,
     fmt::{Debug, Display},
     iter::{self, FusedIterator},
     ops::{Index, IndexMut},
@@ -54,8 +55,8 @@ pub fn run_solution<S: Solution>() -> Result<()> {
 
     let time = time.elapsed();
 
-    println!("Day {:02} - Part 1: {}", S::DAY, part1);
-    println!("Day {:02} - Part 2: {}", S::DAY, part2);
+    println!("Day {:02} - Part 1:\n{}", S::DAY, part1);
+    println!("Day {:02} - Part 2:\n{}", S::DAY, part2);
     println!(
         "Run took {:.5}s | {}ms | {}μs ({})",
         time.as_secs_f32(),
@@ -244,10 +245,63 @@ impl From<GridIndex> for usize {
 
 pub trait Ascii {
     fn to_digit(self) -> Option<u8>;
+    fn to_lowercase_index(self) -> Option<u8>;
+    fn to_uppercase_index(self) -> Option<u8>;
 }
 
 impl Ascii for u8 {
     fn to_digit(self) -> Option<u8> {
         (b'0'..=b'9').contains(&self).then(|| self - b'0')
     }
+    fn to_lowercase_index(self) -> Option<u8> {
+        (b'a'..=b'z').contains(&self).then(|| self - b'a')
+    }
+    fn to_uppercase_index(self) -> Option<u8> {
+        (b'A'..=b'Z').contains(&self).then(|| self - b'A')
+    }
 }
+
+pub trait IterTools
+where
+    Self: Iterator + Sized,
+{
+    fn min_max(self) -> Option<(Self::Item, Self::Item)>
+    where
+        Self::Item: Ord,
+    {
+        self.min_max_by(Ord::cmp)
+    }
+    fn min_max_by_key<K, F>(self, mut f: F) -> Option<(Self::Item, Self::Item)>
+    where
+        K: Ord,
+        F: FnMut(&Self::Item) -> K,
+    {
+        let ((_kmin, min), (_kmax, max)) = self
+            .map(|x| (f(&x), x))
+            .min_max_by(|(ka, _), (kb, _)| ka.cmp(kb))?;
+        Some((min, max))
+    }
+    fn min_max_by<F>(mut self, mut compare: F) -> Option<(Self::Item, Self::Item)>
+    where
+        F: FnMut(&Self::Item, &Self::Item) -> cmp::Ordering,
+    {
+        use cmp::Ordering::*;
+        let first = self.next()?;
+        let second = self.next()?;
+        let (min, max) = match compare(&first, &second) {
+            Less | Equal => (first, second),
+            Greater => (second, first),
+        };
+        let (min, max) = self.fold((min, max), |(min, max), new| match compare(&new, &min) {
+            Less => (new, max),
+            Equal => (min, max),
+            Greater => match compare(&new, &max) {
+                Greater => (min, new),
+                _ => (min, max),
+            },
+        });
+        Some((min, max))
+    }
+}
+
+impl<I> IterTools for I where I: Iterator {}
